@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xat de Hakim</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      color: #333;
+    }
+
+    .header {
+      background-color: #1223bb;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .user-badge {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+
+    .admin-badge {
+      background-color: #ffcc00;
+      color: #000;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      margin-left: 5px;
+    }
+
+    .main-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background-color: #fff;
+    }
+
+    .salas-container {
+      width: 280px;
+      background-color: #f8f9fa;
+      border-left: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s;
+    }
+
+    .salas-header {
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #fff;
+    }
+
+    .salas-header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #1223bb;
+    }
+
+    .btn-nueva-sala {
+      background-color: #1223bb;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-nueva-sala:hover {
+      background-color: #0f1da8;
+    }
+
+    .salas-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .sala-item {
+      padding: 12px;
+      margin-bottom: 8px;
+      background-color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .sala-item:hover {
+      background-color: #f0f4ff;
+      border-left: 3px solid #1223bb;
+    }
+
+    .sala-item.active {
+      background-color: #e7f0ff;
+      border-left: 3px solid #1223bb;
+    }
+
+    .sala-item .nombre {
+      font-weight: 600;
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .sala-item .detalles {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .sala-item .usuarios {
+      display: flex;
+      align-items: center;
+    }
+
+    .sala-item .usuarios-count {
+      background-color: #1223bb;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      margin-right: 5px;
+    }
+
+    .sala-item .timestamp {
+      font-style: italic;
+    }
+
+    #panel-admin {
+      background: #f8f9fa;
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      display: none;
+    }
+
+    #panel-admin h3 {
+      margin: 0 0 10px 0;
+      font-size: 1rem;
+      color: #1223bb;
+    }
+
+    .admin-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    #llista-usuaris {
+      flex: 1;
+      padding: 6px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    #promoure-btn {
+      padding: 6px 12px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #promoure-btn:hover {
+      background-color: #218838;
+    }
+
+    #xat {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .missatge {
+      position: relative;
+      max-width: 75%;
+      padding: 12px 15px;
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 5px;
+      word-wrap: break-word;
+      line-height: 1.4;
+    }
+
+    .usuariActual {
+      background-color: #e3f2fd;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .altresUsuaris {
+      background-color: #f1f1f1;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .usuari {
+      font-weight: bold;
+      margin-bottom: 5px;
+      font-size: 0.85rem;
+      color: #1223bb;
+      display: flex;
+      align-items: center;
+    }
+
+    .missatge-contenido {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .contenido {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .timestamp {
+      font-size: 0.7rem;
+      color: #666;
+      margin-top: 5px;
+      align-self: flex-end;
+    }
+
+    .btn-borrar {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.1);
+      border: none;
+      border-radius: 50%;
+      color: #ff0000;
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .missatge:hover .btn-borrar {
+      opacity: 1;
+    }
+
+    .btn-borrar:hover {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    #formulari {
+      display: flex;
+      padding: 15px;
+      background: #fff;
+      border-top: 1px solid #ddd;
+    }
+
+    #input {
+      flex: 1;
+      padding: 10px 15px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      margin-right: 10px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    #input:focus {
+      border-color: #1223bb;
+    }
+
+    #formulari button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #1223bb;
+      color: white;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    #formulari button:hover {
+      background-color: #0f1da8;
+    }
+
+    .notificacio {
+      background-color: #f8f9fa;
+      color: #666;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      text-align: center;
+      margin: 5px auto;
+      max-width: 80%;
+    }
+
+    @media (max-width: 768px) {
+      .salas-container {
+        position: absolute;
+        right: -280px;
+        top: 0;
+        bottom: 0;
+        z-index: 100;
+        background-color: #fff;
+      }
+
+      .salas-container.visible {
+        right: 0;
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .toggle-salas {
+        display: block !important;
+      }
+    }
+
+    .toggle-salas {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1>Xat en linea de Hakim</h1>
+    <div class="user-info">
+      <button class="toggle-salas" id="toggle-salas">☰</button>
+      <div class="user-badge" id="user-badge">
+        <span id="username-display"></span>
+        <span class="admin-badge" id="admin-badge" style="display: none;">ADMIN</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="main-container">
+    <div class="chat-container">
+      <div id="panel-admin">
+        <h3>Panel d'Administrador</h3>
+        <div class="admin-controls">
+          <select id="llista-usuaris">
+            <option value="">Selecciona un usuari</option>
+          </select>
+          <button id="promoure-btn">Fer Admin</button>
+        </div>
+      </div>
+      
+      <div id="xat"></div>
+      
+      <form id="formulari">
+        <input id="input" autocomplete="off" placeholder="Escriu un missatge..." />
+        <button type="submit">Envia</button>
+      </form>
+    </div>
+    
+    <div class="salas-container" id="salas-container">
+      <div class="salas-header">
+        <h3>Sales disponibles</h3>
+        <button class="btn-nueva-sala" id="btn-nueva-sala">
+          <span>+</span>
+        </button>
+      </div>
+      <div class="salas-list" id="lista-salas">
+        <div style="padding: 20px; text-align: center; color: #666;">
+          Carregant sales...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const formulari = document.getElementById('formulari');
+    const input = document.getElementById('input');
+    const xat = document.getElementById('xat');
+    const panelAdmin = document.getElementById('panel-admin');
+    const selectUsuaris = document.getElementById('llista-usuaris');
+    const promoureBtn = document.getElementById('promoure-btn');
+    const btnNuevaSala = document.getElementById('btn-nueva-sala');
+    const listaSalas = document.getElementById('lista-salas');
+    const salasContainer = document.getElementById('salas-container');
+    const toggleSalas = document.getElementById('toggle-salas');
+    const usernameDisplay = document.getElementById('username-display');
+    const adminBadge = document.getElementById('admin-badge');
+
+    let nomUsuari = '';
+    let salaActual = '';
+    let esAdmin = false;
+    let salasUnidas = [];
+    let salas = {}; 
+
+    // Solicitar nombre de usuario
+    function obtenerNombreUsuario() {
+      return new Promise((resolve) => {
+        let nombre = '';
+        while (!nombre) {
+          nombre = prompt("Introdueix el teu nom d'usuari:");
+          if (nombre === null) {
+            alert("Has d'introduir un nom per continuar.");
+          } else if (nombre.trim()) {
+            localStorage.setItem('chatUsername', nombre.trim());
+            resolve(nombre.trim());
+          }
+        }
+      });
+    }
+
+    // Inicializar chat
+    async function initChat() {
+      nomUsuari = await obtenerNombreUsuario();
+      usernameDisplay.textContent = nomUsuari;
+      
+      // Solicitar lista de salas
+      socket.emit('obtenir salas');
+
+      setTimeout(() => {
+        if (!salaActual && listaSalas.children.length > 0 && listaSalas.children[0].classList.contains('sala-item')) {
+          const primeraSala = listaSalas.children[0].querySelector('.nombre').textContent;
+          unirseASala(primeraSala);
+        }
+      }, 1000);
+    }
+
+    // Actualizar la lista de las salas
+    function actualizarListaSalas(salasDisponibles) {
+      listaSalas.innerHTML = '';
+      
+      if (salasDisponibles.length === 0) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.style.padding = '20px';
+        emptyMsg.style.textAlign = 'center';
+        emptyMsg.style.color = '#666';
+        emptyMsg.textContent = 'No hi ha sales disponibles';
+        listaSalas.appendChild(emptyMsg);
+      } else {
+        salasDisponibles.forEach(sala => {
+          const salaItem = document.createElement('div');
+          salaItem.className = 'sala-item';
+          if (sala.nombre === salaActual) {
+            salaItem.classList.add('active');
+          }
+          
+          const nombreContainer = document.createElement('div');
+          nombreContainer.className = 'nombre';
+          
+          const nombreSala = document.createElement('span');
+          nombreSala.textContent = sala.nombre;
+          
+          nombreContainer.appendChild(nombreSala);
+          
+          const detalles = document.createElement('div');
+          detalles.className = 'detalles';
+          
+          const usuarios = document.createElement('div');
+          usuarios.className = 'usuarios';
+          
+          const usuariosCount = document.createElement('span');
+          usuariosCount.className = 'usuarios-count';
+          usuariosCount.textContent = sala.usuarios || 0;
+          
+          usuarios.appendChild(usuariosCount);
+          usuarios.appendChild(document.createTextNode(' usuaris'));
+          
+          const timestamp = document.createElement('div');
+          timestamp.className = 'timestamp';
+          timestamp.textContent = formatTimestamp(sala.timestamp);
+          
+          detalles.appendChild(usuarios);
+          detalles.appendChild(timestamp);
+          
+          salaItem.appendChild(nombreContainer);
+          salaItem.appendChild(detalles);
+          
+          salaItem.addEventListener('click', () => {
+            unirseASala(sala.nombre);
+          });
+          
+          listaSalas.appendChild(salaItem);
+        });
+      }
+    }
+
+    function formatTimestamp(timestamp) {
+      if (!timestamp) return '';
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Unirse a sala
+    function unirseASala(nombreSala) {
+      if (!salasUnidas.includes(nombreSala)) {
+        salasUnidas.push(nombreSala);
+        socket.emit('unir-se', { nom: nomUsuari, nomSala: nombreSala });
+      }
+      
+      salaActual = nombreSala;
+      socket.emit('cambiar sala', nombreSala);
+      
+      // Resaltar la sala activa del usuario
+      document.querySelectorAll('.sala-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.querySelector('.nombre span').textContent === salaActual) {
+          item.classList.add('active');
+        }
+      });
+    }
+
+    // Crear nueva sala
+    btnNuevaSala.addEventListener('click', () => {
+      const nombreSala = prompt("Introdueix el nom de la nova sala:");
+      if (nombreSala && nombreSala.trim()) {
+        unirseASala(nombreSala.trim());
+      }
+    });
+
+    // Enviar mensaje
+    formulari.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const mensaje = input.value.trim();
+      if (mensaje && salaActual) {
+        socket.emit('missatge', { text: mensaje });
+        input.value = '';
+      }
+    });
+
+    // Eventos del socket
+    socket.on('salas disponibles', (salasDisponibles) => {
+      actualizarListaSalas(salasDisponibles);
+    });
+
+    socket.on('nueva sala creada', () => {
+      socket.emit('obtenir salas');
+    });
+
+    socket.on('sala actualizada', (salaActualizada) => {
+      if (salas[salaActualizada.nombre]) {
+        salas[salaActualizada.nombre].timestamp = salaActualizada.timestamp;
+      }
+      socket.emit('obtenir salas');
+    });
+
+    socket.on('sala eliminada', (nombreSala) => {
+      delete salas[nombreSala];
+      socket.emit('obtenir salas');
+    });
+
+    socket.on('info sala', ({ nombre, esAdmin: esAdminSala, usuarios, historial }) => {
+      // Actualizar estado de admin
+      esAdmin = esAdminSala;
+      adminBadge.style.display = esAdmin ? 'inline-block' : 'none';
+      panelAdmin.style.display = esAdmin ? 'block' : 'none';
+      
+      salas[nombre] = salas[nombre] || {};
+      salas[nombre].administradores = esAdminSala ? [nomUsuari] : [];
+      salas[nombre].usuarios = usuarios;
+      salas[nombre].historial = historial;
+      
+      // Cargar historial
+      xat.innerHTML = '';
+      historial.forEach(dades => {
+        agregarMensajeAlChat(dades);
+      });
+      xat.scrollTop = xat.scrollHeight;
+      
+      // Actualizar lista de usuarios si es admin para poder hacerle admin a alguien nuvo
+      if (esAdmin) {
+        selectUsuaris.innerHTML = '<option value="">Selecciona un usuari</option>';
+        usuarios.forEach(u => {
+          if (u !== nomUsuari && !salas[nombre].administradores.includes(u)) {
+            const opt = document.createElement('option');
+            opt.value = u;
+            opt.textContent = u;
+            selectUsuaris.appendChild(opt);
+          }
+        });
+      }
+    });
+
+    socket.on('missatge', function(dades) {
+      if (dades.sala === salaActual) {
+        agregarMensajeAlChat(dades);
+        xat.scrollTop = xat.scrollHeight;
+        
+        // Actualizar el historial local
+        if (salas[dades.sala]) {
+          salas[dades.sala].historial.push(dades);
+        }
+      }
+    });
+
+    socket.on('borrar missatge', ({ id }) => {
+      const msg = [...document.querySelectorAll('.missatge')].find(m => m.dataset.id === id);
+      if (msg) msg.remove();
+      
+      if (salas[salaActual]) {
+        salas[salaActual].historial = salas[salaActual].historial.filter(m => m.id !== id);
+      }
+    });
+
+    socket.on('convertit en admin', () => {
+      esAdmin = true;
+      adminBadge.style.display = 'inline-block';
+      panelAdmin.style.display = 'block';
+      
+      // Actualizar el estado local
+      if (salas[salaActual]) {
+        salas[salaActual].administradores.push(nomUsuari);
+      }
+      
+      socket.emit('obtenir usuaris', salaActual);
+      
+      if (salas[salaActual]) {
+        xat.innerHTML = '';
+        salas[salaActual].historial.forEach(dades => {
+          agregarMensajeAlChat(dades);
+        });
+        xat.scrollTop = xat.scrollHeight;
+      }
+    });
+
+    socket.on('actualitzar usuaris', ({ usuaris, admins }) => {
+      if (esAdmin) {
+        selectUsuaris.innerHTML = '<option value="">Selecciona un usuari</option>';
+        usuaris.forEach(u => {
+          if (!admins.includes(u)) {
+            const opt = document.createElement('option');
+            opt.value = u;
+            opt.textContent = u;
+            selectUsuaris.appendChild(opt);
+          }
+        });
+      }
+      
+      // Actualizar el estado local
+      if (salas[salaActual]) {
+        salas[salaActual].usuarios = usuaris;
+        salas[salaActual].administradores = admins;
+      }
+    });
+
+    socket.on('notificacio', (msg) => {
+      const n = document.createElement('div');
+      n.className = 'notificacio';
+      n.textContent = msg;
+      xat.appendChild(n);
+      xat.scrollTop = xat.scrollHeight;
+    });
+
+    socket.on('error', (msg) => {
+      alert(msg);
+    });
+
+    // Funcion para agregar mensaje al chat
+    function agregarMensajeAlChat(dades) {
+      const missatge = document.createElement('div');
+      const classe = dades.usuari === nomUsuari ? 'usuariActual' : 'altresUsuaris';
+      missatge.className = `missatge ${classe}`;
+      missatge.dataset.id = dades.id;
+
+      const usuariElement = document.createElement('div');
+      usuariElement.className = 'usuari';
+      usuariElement.textContent = dades.usuari;
+      
+      // Mostrar el logo de admin para los admins
+      if (salas[dades.sala]?.administradores.includes(dades.usuari)) {
+        const adminSpan = document.createElement('span');
+        adminSpan.className = 'admin-badge';
+        adminSpan.textContent = 'ADMIN';
+        usuariElement.appendChild(adminSpan);
+      }
+
+      const contingut = document.createElement('div');
+      contingut.className = 'contenido';
+      contingut.textContent = dades.text;
+
+      const timestamp = document.createElement('div');
+      timestamp.className = 'timestamp';
+      timestamp.textContent = new Date(dades.timestamp).toLocaleTimeString();
+
+      missatge.appendChild(usuariElement);
+      missatge.appendChild(contingut);
+      missatge.appendChild(timestamp);
+
+      // Mostrar boton de borrado si el usuario actual es admin para que asi pueda borrar mensjaes
+      if (esAdmin) {
+        const btn = document.createElement('button');
+        btn.className = 'btn-borrar';
+        btn.textContent = '✕';
+        btn.title = 'Eliminar missatge';
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          socket.emit('borrar missatge', { id: dades.id, sala: dades.sala });
+        };
+        missatge.appendChild(btn);
+      }
+
+      xat.appendChild(missatge);
+    }
+
+    // Hacer a algun usuario admin
+    promoureBtn.addEventListener('click', () => {
+      const usuari = selectUsuaris.value;
+      if (usuari) {
+        socket.emit('afegir admin', { usuari, sala: salaActual });
+        selectUsuaris.value = '';
+      }
+    });
+
+    toggleSalas.addEventListener('click', () => {
+      salasContainer.classList.toggle('visible');
+    });
+
+    // Iniciar el chat
+    initChat();
+  </script>
+</body>
+
+</html>
